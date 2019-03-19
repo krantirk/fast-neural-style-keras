@@ -15,7 +15,9 @@ from keras.engine.topology import get_source_inputs
 from keras.utils import layer_utils
 from keras.utils.data_utils import get_file
 from keras import backend as K
-from keras.applications.imagenet_utils import decode_predictions, preprocess_input, _obtain_input_shape
+from keras.applications.imagenet_utils import decode_predictions, preprocess_input
+
+from keras_applications.imagenet_utils import _obtain_input_shape
 
 
 
@@ -84,7 +86,7 @@ def VGG16(include_top=True, weights='imagenet',
                                       default_size=224,
                                       min_size=48,
                                       data_format=K.image_data_format(),
-                                      include_top=include_top)
+                                     require_flatten=True)
 
     if input_tensor is None:
         img_input = Input(shape=input_shape)

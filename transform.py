@@ -1,10 +1,15 @@
+from keras import backend as K
+K.set_floatx('float16')
+K.set_epsilon(1e-4)
+
+
 from keras.layers import Input, merge
 from keras.models import Model,Sequential
 from layers import VGGNormalize,ReflectionPadding2D,Denormalize,conv_bn_relu,res_conv,dconv_bn_nolinear
 from loss import dummy_loss,StyleReconstructionRegularizer,FeatureReconstructionRegularizer,TVRegularizer
 from keras.optimizers import Adam, SGD,Nadam,Adadelta
 from keras.preprocessing.image import ImageDataGenerator
-from keras import backend as K
+
 from scipy.misc import imsave
 import time
 import numpy as np 
@@ -18,7 +23,6 @@ from scipy.ndimage.filters import median_filter
 from img_util import preprocess_image, preprocess_image_for_generating, preprocess_reflect_image, crop_image
 
 import nets
-
 
 # from 6o6o's fork. https://github.com/6o6o/chainer-fast-neuralstyle/blob/master/generate.py
 def original_colors(original, stylized,original_color):
@@ -86,15 +90,16 @@ def main(args):
 
     model.load_weights("pretrained/"+style+'_weights.h5',by_name=False)
 
-    
-    t1 = time.time()
-    y = net.predict(x)[0] 
+    for i in range(20):
+        t1 = time.time()
+        y = net.predict(x)[0] 
+        print("inference: %s" % (time.time() -t1))
+
     y = crop_image(y, aspect_ratio)
-
-    print("process: %s" % (time.time() -t1))
-
     ox = crop_image(x[0], aspect_ratio)
 
+    y = np.asarray(y).astype(float)
+    
     y =  median_filter_all_colours(y, media_filter)
 
     if blend_alpha > 0:
